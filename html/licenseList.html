@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<title>许可证列表</title>
+		<link rel="stylesheet" href="../css/layui.css" />
+		<link rel="stylesheet" href="../css/common.css" />
+		<script type="text/javascript" src="../js/config.js"></script>
+		<script type="text/javascript" src="../js/jquery.min.js"></script>
+	</head>
+	<style>
+		.pageNum {
+			margin: auto;
+		}
+	</style>
+
+	<body>
+		<div id="app" v-cloak>
+			<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+				<legend>许可证列表</legend>
+			</fieldset>
+
+			<div class="layui-form">
+
+				<div class="layui-btn-container">
+					<button class="layui-btn addButton" onclick="openFrame()">新增应用</button>
+				</div>
+
+				<table class="layui-table">
+					<thead>
+						<tr>
+							<th>app名称</th>
+							<th>包名</th>
+							<th>唯一标识</th>
+							<th>授权码</th>
+							<th>设备数量</th>
+							<th>使用期限</th>
+							<th>服务类型</th>
+							<th>创建时间</th>
+							<th>上次使用时间</th>
+							<th>客户端类型</th>
+							<th>密钥</th>
+						</tr>
+					</thead>
+					<tbody v-for="LicenceList in LicenceLists">
+						<tr>
+							<th>{{ LicenceList.licenseAppName }}</th>
+							<th>{{ LicenceList.licensePackageName }}</th>
+							<th>{{ LicenceList.licenseUniqueMark }}</th>
+							<th>{{ LicenceList.licenseAccreditCode }}</th>
+							<th>{{ LicenceList.licenseDeviceCount }}</th>
+							<th>{{ timestampToTime(LicenceList.licenseUseTimeLimit) }}</th>
+							<th>{{ LicenceList.licenseServiceCategory }}</th>
+							<th>{{ timestampToTime(LicenceList.licenseCreateTime)}}</th>
+							<th>{{ timestampToTime(LicenceList.licenseUpdateTime) }}</th>
+							<th>{{ LicenceList.licenseClientType }}</th>
+							<th>{{ LicenceList.licenseSecretkey }}</th>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<center class="pageNum">
+				<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+				</fieldset>
+				<div id="demo0"></div>
+			</center>
+		</div>
+	</body>
+
+	<script src="../js/vue.min.js"></script>
+	<!--<script src="https://unpkg.com/axios/dist/axios.min.js"></script>	-->
+
+	<script>
+		$(function() {
+			app.init();
+			app.getCount();
+		});
+
+		var app = new Vue({
+			el: '#app',
+			data: {
+				LicenceLists: [],
+				pageNum: 1,
+				pageSize: 5,
+
+			},
+			methods: {
+				init: function() {
+					$.ajax({
+						url: serviceApi.licenseList + "/" + app.pageNum + "/" + app.pageSize,
+						dataType: "json",
+						type: "get",
+						success: function(res) {
+							console.log(res);
+							if(res.resultCode == "200") {
+								app.LicenceLists = res.LicenseList;
+								//initPageNum (res.count)
+							}
+
+						},
+						error: function(err) {
+							console.log(err);
+						}
+					});
+				},
+				getCount() {
+					$.ajax({
+						url: serviceApi.countLicense,
+						dataType: "json",
+						type: "get",
+						success: function(res) {
+							console.log(res);
+							if(res.resultCode == "200") {
+								ininPage(res.count, app.pageSize);
+							}
+
+						},
+						error: function(err) {
+							console.log(err);
+						}
+					});
+				},
+			}
+		})
+
+		function timestampToTime(timestamp) {
+			if(timestamp) {
+				var date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+				Y = date.getFullYear() + '-';
+				M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+				D = date.getDate() + ' ';
+				h = date.getHours() + ':';
+				m = date.getMinutes() + ':';
+				s = date.getSeconds();
+				return Y + M + D + h + m + s;
+			} else {
+				return "";
+			}
+
+		}
+
+		function openFrame() {
+			layui.use('layer', function() {
+				layer.open({
+					type: 2,
+					title: false,
+					closeBtn: 1, //不显示关闭按钮
+					shade: [0.2],
+					area: ['893px', '600px'],
+					content: ['createLicense.html', 'no'], //iframe的url，no代表不显示滚动条
+					end: function() {
+						app.init();
+					}
+				});
+			});
+		}
+
+		function ininPage(count, size) {
+			layui.use(['laypage', 'layer'], function() {
+				var laypage = layui.laypage,
+					layer = layui.layer;
+				laypage.render({
+					elem: 'demo0',
+					limit: size,
+					count: count, //数据总数
+					jump: function(obj, first) {
+						if(!first) {
+							app.pageNum = obj.curr;
+							app.init();
+						}
+					}
+				});
+			})
+		}
+	</script>
+
+</html>

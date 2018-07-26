@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<title>服务模块</title>
+		<link rel="stylesheet" href="../css/layui.css">
+		<script type="text/javascript" src="../js/jquery.min.js" ></script>
+	</head>
+
+	<body class="layui-layout-body">
+		<div class="layui-layout layui-layout-admin">
+			<div class="layui-header">
+				<div class="layui-logo">服务模块系统</div>
+				<ul class="layui-nav layui-layout-right">
+					<li class="layui-nav-item">
+						<a href="javascript:;">
+							<img src="../images/timg (1).jpg" class="layui-nav-img"><span id="username"></span>
+						</a>
+						<dl class="layui-nav-child">
+							<dd>
+								<a href="">基本资料</a>
+							</dd>
+							<dd>
+								<a href="">安全设置</a>
+							</dd>
+							<dd>
+								<a href="javascript:;" onclick="editPassword()">修改密码</a>
+							</dd>
+						</dl>
+					</li>
+					<li class="layui-nav-item" onclick="exit()">
+						<a href="javascript:;">退出</a>
+					</li>
+				</ul>
+			</div>
+
+			<div class="layui-side layui-bg-black">
+				<div class="layui-side-scroll">
+					<!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+					<ul class="layui-nav layui-nav-tree" lay-filter="test" id="nav">
+						<li class="layui-nav-item layui-nav-itemed" id="licenseList">
+							<a class="" href="javascript:;">许可列表</a>
+						</li>
+						<li class="layui-nav-item" id="createLicense">
+							<a href="javascript:;" >创建应用</a>
+						</li>
+						<li class="layui-nav-item" id="user">
+							<a href="javascript:;" >用户权限</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+			<div class="layui-body">
+				<!-- 内容主体区域 -->
+				<div style="padding: 15px;" id="content">内容主体区域</div>
+			</div>
+			
+			
+
+		</div>
+		<script src="../js/layui.all.js"></script>
+		<script type="text/javascript" src="../js/home.js" ></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script>
+			
+			$(function(){
+				$("#username").text(localStorage.getItem("username"));
+				
+				if (localStorage.getItem("isFirst")){
+					$("#content").load("licenseList.html");
+					localStorage.isFirst = false ;
+				}
+				var hash = window.location.hash ;
+				reloadHash(hash)
+			})
+			
+			layui.use('element', function() {
+				var element = layui.element;
+
+			});
+			//修改密码
+			function editPassword() {
+				layui.use('layer', function() {
+					layer.open({
+						type: 2,
+						title: false,
+						closeBtn: 1, //不显示关闭按钮
+						shade: [0.2],
+						area: ['893px', '700px'],
+						content: ['editPassword.html', 'no'], //iframe的url，no代表不显示滚动条
+						end : function(){
+							app.init();
+						}
+					});
+				});
+			}
+			
+			function goLogin(){
+				window.location.href = "../index.html";
+			}
+			
+		</script>
+	</body>
+
+</html>
